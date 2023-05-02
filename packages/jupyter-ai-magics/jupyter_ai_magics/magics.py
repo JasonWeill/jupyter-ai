@@ -83,7 +83,9 @@ PROMPT_TEMPLATES_BY_FORMAT = {
 
 AI_COMMANDS = {
     "help": "Display a list of supported commands",
-    "list": "Display a list of models that you can use (optionally, for a single provider)"
+    "list": "Display a list of models that you can use (optionally, for a single provider)",
+    "register": ("Add a custom LangChain chain or alias to a model for use with %ai magic commands."
+        + "Usage: `%ai register NAME CHAIN_OR_MODEL`")
 }
 
 class FormatDict(dict):
@@ -108,6 +110,9 @@ class AiMagics(Magics):
             "`from langchain.chat_models import ChatOpenAI`")
 
         self.providers = load_providers()
+        
+        # initialize a registry of custom model/chain names
+        self.custom_model_registry = {}
     
     def _ai_help_command_markdown(self):
         table = ("| Command | Description |\n"
@@ -188,7 +193,39 @@ class AiMagics(Magics):
             output += "(not set)"
         
         return output + "\n"
+    
+    # Returns any error
+    def _validate_register_name(self, register_name):
+        # Existing command names are not allowed
+        if (register_name in AI_COMMANDS):
+            return 'This name is reserved for a command'
+        
+        # Existing registered names are not allowed
+        if (register_name in self.custom_model_registry):
+            # TODO: Recommend 'update' command
+            return 'This name is already associated with a custom model'
+        
+        # A registry name contains ASCII letters, numbers, hyphens, underscores,
+        # and periods. No other characters, including a colon, are permitted
+        acceptable_name = re.compile('^[a-zA-Z0-9._-]+$')
+        if (acceptable_name.match(register_name)):
+            return None # No error
+        else:
+            return ('A registry name may contain ASCII letters, numbers, hyphens, underscores, '
+                + 'and periods. No other characters, including a colon, are permitted')
 
+    def _ai_register_command_markdown(self, register_name, variable_name):
+        # TODO: Write this method
+        return self._ai_register_command_text(register_name, variable_name)
+
+    def _ai_register_command_text(self, register_name, variable_name):
+        output = 'Registry name is valid'
+
+        register_name_errors = self._validate_register_name(register_name)
+        if (register_name_errors is not None):
+            output = f"Unable to create a new entry with name {register_name}: {register_name_errors}"
+        
+        return output
 
     def _ai_list_command_markdown(self, single_provider=None):
         output = ("| Provider | Environment variable | Set? | Models |\n"
@@ -226,7 +263,7 @@ class AiMagics(Magics):
     def _ai_command(self, command, args_string):
         args = args_string.split() # Split by whitespace
 
-        # When we can use Python 3.10+, replace this with a 'match' command
+        # When we can use strictly Python 3.10+, replace this with a 'match' command
         if (command == 'help'):
             return TextOrMarkdown(self._ai_help_command_text(), self._ai_help_command_markdown())
         elif (command == 'list'):
@@ -238,6 +275,21 @@ class AiMagics(Magics):
             return TextOrMarkdown(
                 self._ai_list_command_text(provider_id),
                 self._ai_list_command_markdown(provider_id)
+            )
+        elif (command == 'register'):
+            # Parameters: name, variable name
+            if (len(args) != 2):
+                return TextOrMarkdown(
+                    f"Usage: %ai register NAME CHAIN_OR_MODEL\n",
+                    f"Usage: `%ai register NAME CHAIN_OR_MODEL`"
+                )
+
+            register_name = args[0]
+            variable_name = args[1]
+
+            return TextOrMarkdown(
+                self._ai_register_command_text(register_name, variable_name),
+                self._ai_register_command_markdown(register_name, variable_name)
             )
         else:
             # This should be unreachable, since unhandled commands are treated like model names
