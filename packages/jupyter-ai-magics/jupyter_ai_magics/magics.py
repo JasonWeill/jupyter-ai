@@ -94,11 +94,11 @@ AI_COMMANDS = {
     "help": ("Display a list of supported commands", "%ai help"),
     "list": ("Display a list of models that you can use (optionally, for a single provider)",
         "%ai list [PROVIDER_ID]"),
-    "register": ("Add a custom LangChain chain or alias to a model for use with %ai magic commands",
+    "register": ("Add an alias to a model for use with %ai magic commands",
         REGISTER_COMMAND_USAGE),
-    "delete": ("Delete a previously registered name that points to a chain or model",
+    "delete": ("Delete a previously registered alias",
         DELETE_COMMAND_USAGE),
-    "update": ("Update a previously registered name that points to a chain or model",
+    "update": ("Update a previously registered alias",
         UPDATE_COMMAND_USAGE)
 }
 
