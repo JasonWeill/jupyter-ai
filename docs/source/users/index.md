@@ -463,3 +463,33 @@ produced the following Python error:
 Write a new version of this code that does not produce that error.
 ```
 
+### Creating and managing aliases for models
+
+You can create an alias for a model using the `%ai register` command. For example, the command:
+
+```
+%ai register claude anthropic:claude-v1.2
+```
+
+will register the alias `claude` as pointing to the `anthropic` provider's `claude-v1.2` model. You can then use this alias as you would use any other model name:
+
+```
+%%ai claude
+Write a poem about C++.
+```
+
+You can change this alias's target model using the `%ai update` command:
+
+```
+%ai update claude anthropic:claude-instant-v1.0
+```
+
+You can delete this alias using the `%ai delete` command:
+
+```
+%ai delete claude
+```
+
+Aliases' names can contain ASCII letters (uppercase and lowercase), numbers, hyphens, underscores, and periods. They may not contain colons. They may also not override built-in commands — run `%ai help` for a list of these commands.
+
+Aliases must refer to models; they cannot refer to other aliases.
