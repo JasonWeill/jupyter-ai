@@ -59,7 +59,7 @@ def split(path, all_files: bool, splitter):
             filenames = [f for f in filenames if not f[0] == "."]
 
         for filename in filenames:
-            if not all and filename.startswith("."):
+            if not all_files and filename.startswith("."):
                 continue
 
             filepath = Path(os.path.join(dir, filename))
