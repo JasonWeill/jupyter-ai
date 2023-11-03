@@ -55,13 +55,10 @@ def split(path, all_files: bool, splitter):
         # Filter out hidden filenames, hidden directories, and excluded directories,
         # unless "all files" are requested
         if not all_files:
-            subdirs[:] = [d for d in subdirs if not (d[0] == "." or d in EXCLUDE_DIRS)]
-            filenames = [f for f in filenames if not f[0] == "."]
+            subdirs[:] = [d for d in subdirs if not (d[0] == '.' or d in EXCLUDE_DIRS)]
+            filenames = [f for f in filenames if not f[0] == '.']
 
         for filename in filenames:
-            if not all_files and filename.startswith("."):
-                continue
-
             filepath = Path(os.path.join(dir, filename))
             if filepath.suffix not in SUPPORTED_EXTS:
                 continue
